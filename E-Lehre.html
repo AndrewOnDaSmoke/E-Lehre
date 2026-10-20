@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teil 2: Elektrizitätslehre, Elektrostatik & Biosignale – MaReCuM Physik</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --exam: #f59e0b;
+      --exam-bg: rgba(245, 158, 11, 0.12);
+      --clinic: #10b981;
+      --clinic-bg: rgba(16, 185, 129, 0.12);
+      --low: #64748b;
+      --low-bg: rgba(100, 116, 139, 0.12);
+      --radius: 10px;
+    }
+    body.light {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-hover: #f8fafc;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-soft: rgba(2, 132, 199, 0.1);
+      --exam: #d97706;
+      --exam-bg: rgba(217, 119, 6, 0.08);
+      --clinic: #059669;
+      --clinic-bg: rgba(5, 150, 105, 0.08);
+      --low: #64748b;
+      --low-bg: rgba(100, 116, 139, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 295px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .brand { font-size: 1.18rem; font-weight: 800; color: var(--accent); margin-bottom: 2px; }
+    .subtitle { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px; }
+    .search-box {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      margin-bottom: 14px;
+      font-size: 0.88rem;
+    }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { background: var(--surface-hover); }
+    .nav-btn.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      border-left: 3px solid var(--accent);
+    }
+    .controls {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ctrl-btn {
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: left;
+    }
+    .ctrl-btn.active-filter {
+      border-color: var(--exam);
+      background: var(--exam-bg);
+      color: var(--exam);
+    }
+    .main {
+      margin-left: 295px;
+      flex: 1;
+      padding: 32px 42px;
+      max-width: 1220px;
+    }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+    h1 { font-size: 1.75rem; margin-bottom: 6px; color: var(--accent); }
+    .section-lead { color: var(--text-muted); margin-bottom: 22px; font-size: 0.95rem; }
+    h2 {
+      font-size: 1.22rem;
+      margin: 28px 0 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    h3 { font-size: 1.04rem; margin: 10px 0 6px; color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .card.exam-card {
+      border-left: 4px solid var(--exam);
+      background: linear-gradient(180deg, var(--exam-bg) 0%, var(--surface) 40%);
+    }
+    .card.clinic-card {
+      border-left: 4px solid var(--clinic);
+      background: linear-gradient(180deg, var(--clinic-bg) 0%, var(--surface) 40%);
+    }
+    .low-yield {
+      border: 1px dashed var(--low);
+      background: var(--low-bg);
+      opacity: 0.88;
+    }
+    body.exam-only .low-yield { display: none !important; }
+    .card ul, .card ol { padding-left: 20px; margin-top: 6px; }
+    .card li { margin-bottom: 6px; }
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge.exam { background: var(--exam-bg); color: var(--exam); border: 1px solid var(--exam); }
+    .badge.clinic { background: var(--clinic-bg); color: var(--clinic); border: 1px solid var(--clinic); }
+    .badge.low { background: var(--low-bg); color: var(--text-muted); border: 1px solid var(--low); }
+    .formula-box {
+      background: var(--bg);
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px;
+      margin: 10px 0;
+      border-radius: 6px;
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 1.06rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0 4px;
+    }
+    .frac > span:first-child { border-bottom: 1px solid var(--text); padding-bottom: 1px; }
+    .frac > span:last-child { padding-top: 1px; }
+    .vec { text-decoration: overline; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.9rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    th, td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+    th { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+    details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      padding: 12px 16px;
+    }
+    summary { font-weight: 700; cursor: pointer; color: var(--accent); outline: none; }
+    details.low-yield summary { color: var(--text-muted); }
+    details[open] summary { margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .cite { font-size: 0.7rem; color: var(--text-muted); opacity: 0.75; margin-left: 3px; }
+    body.hide-cites .cite { display: none; }
+    .calc-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+    .calc-input {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      width: 110px;
+    }
+    @media (max-width: 860px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: relative; }
+      .main { margin-left: 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body class="hide-cites">
+
+  <aside class="sidebar">
+    <div class="brand">Teil 2: Elektrizität & Biosignale</div>
+    <div class="subtitle">Vorlesung Prof. Hesser & Praktikum Kap. 6 <span class="cite">[cite: 79, 136]</span></div>
+    <input type="text" id="searchInput" class="search-box" placeholder="Suche (z.B. EKG, Kirchhoff, HRV)..." oninput="filterContent()">
+
+    <button class="nav-btn active" onclick="openTab('sec1', this)">1. Elektrostatik & Zellmembran</button>
+    <button class="nav-btn" onclick="openTab('sec2', this)">2. Schaltkreise & Signaltheorie</button>
+    <button class="nav-btn" onclick="openTab('sec3', this)">3. Seminar & Vorbereitung (Gelöst)</button>
+    <button class="nav-btn" onclick="openTab('sec4', this)">4. Praktikum: EMG, EOG & EKG</button>
+
+    <div class="controls">
+      <button class="ctrl-btn" id="examFilterBtn" onclick="toggleExamMode()">🎯 Nur Prüfungsrelevantes: AUS</button>
+      <button class="ctrl-btn" onclick="document.body.classList.toggle('light')">🌗 Hell / Dunkel umschalten</button>
+      <button class="ctrl-btn" onclick="document.body.classList.toggle('hide-cites')">📑 Folien-Quellen ein/aus</button>
+      <button class="ctrl-btn" onclick="toggleAllDetails(true)">➕ Alle Lösungen ausklappen</button>
+      <button class="ctrl-btn" onclick="toggleAllDetails(false)">➖ Alle Lösungen einklappen</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ==================== SEKTION 1: ELEKTROSTATIK & ZELLMEMBRAN ==================== -->
+    <section id="sec1" class="tab-section active">
+      <h1>1. Elektrostatik, Kondensator & Zellphysiologie</h1>
+      <p class="section-lead">Vorlesung Prof. Dr. J. W. Hesser – Ruhende elektrische Ladungen, Felder, Potentialdifferenzen und die Modellierung der Zellmembran als Plattenkondensator <span class="cite">[cite: 136, 137, 141]</span>.</p>
+
+      <h2>1.1 Elektrische Grundgrößen, Einheiten & Coulomb-Gesetz</h2>
+      <div class="grid">
+        <div class="card exam-card">
+          <span class="badge exam">🔥 Klausur-Fokus: Einheiten</span>
+          <h3>Die 6 Grundbegriffe der Elektrizitätslehre</h3>
+          <p><small>Hinweis: In der Elektrizitätslehre wird <strong>W</strong> für die Energie/Arbeit verwendet, um Verwechslungen mit dem elektrischen Feld <strong><span class="vec">E</span></strong> zu vermeiden <span class="cite">[cite: 146]</span>.</small></p>
+          <table>
+            <thead>
+              <tr>
+                <th>Größe</th>
+                <th>Symbol</th>
+                <th>Einheit & Umrechnung</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Stromstärke</strong> (bewegte Ladung pro Zeit) <span class="cite">[cite: 145, 171]</span></td>
+                <td>I</td>
+                <td><strong>Ampère [A]</strong> (SI-Grundgröße) <br>I = <span class="frac"><span>Q</span><span>t</span></span> = n<sub>Elektronen</sub> · <span class="frac"><span>q<sub>el</sub><sup>−</sup></span><span>t</span></span> <span class="cite">[cite: 145, 146]</span></td>
+              </tr>
+              <tr>
+                <td><strong>Ladung</strong> <span class="cite">[cite: 143, 146]</span></td>
+                <td>Q</td>
+                <td><strong>Coulomb [C] = 1 A · s</strong> <span class="cite">[cite: 40, 146]</span></td>
+              </tr>
+              <tr>
+                <td><strong>Spannung</strong> (Potentialdifferenz) <span class="cite">[cite: 149, 171]</span></td>
+                <td>U</td>
+                <td><strong>Volt [V] = <span class="frac"><span>J</span><span>C</span></span> = <span class="frac"><span>N · m</span><span>A · s</span></span></strong> <span class="cite">[cite: 146]</span></td>
+              </tr>
+              <tr>
+                <td><strong>Leistung</strong> <span class="cite">[cite: 146, 171]</span></td>
+                <td>P</td>
+                <td><strong>Watt [W] = V · A = <span class="frac"><span>J</span><span>s</span></span></strong> &nbsp;(P = U · I) <span class="cite">[cite: 146, 171]</span></td>
+              </tr>
+              <tr>
+                <td><strong>Energie / Arbeit</strong> <span class="cite">[cite: 146, 147]</span></td>
+                <td>W</td>
+                <td><strong>Joule [J] = W · s = V · C</strong> &nbsp;(W = Q · U) <span class="cite">[cite: 146, 147]</span></td>
+              </tr>
+              <tr>
+                <td><strong>Kapazität</strong> <span class="cite">[cite: 40, 146]</span></td>
+                <td>C</td>
+                <td><strong>Farad [F] = <span class="frac"><span>C</span><span>V</span></span> = <span class="frac"><span>A · s</span><span>V</span></span></strong> &nbsp;(C = <span class="frac"><span>Q</span><span>U</span></span>) <span class="cite">[cite: 40, 146]</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card exam-card">
+          <span class="badge exam">🔥 Klausur-Fokus</span>
+          <h3>Elektrisches Feld, Coulomb-Gesetz & Potentialgebirge</h3>
+          <ul>
+            <li><strong>Atombau & Elementarladung:</strong> Kern aus positiv geladenen Protonen (q<sub>el</sub><sup>+</sup>) und neutralen Neutronen; Hülle aus negativ geladenen Elektronen (q<sub>el</sub><sup>−</sup>). Im neutralen Atom gilt |q<sub>el</sub><sup>+</sup>| = |q<sub>el</sub><sup>−</sup>| bei gleicher Anzahl <span class="cite">[cite: 143, 144]</span>.</li>
+            <li><strong>Elektrisches Feld <span class="vec">E</span> & Feldlinien:</strong> Definiert über die Kraft auf eine Probeladung Q. Feldlinien zeigen die Bahnkurve, auf der sich eine positive Ladung im Feld bewegt (von + nach −; ungleichnamige Ladungen ziehen sich an, gleichnamige stoßen sich ab) <span class="cite">[cite: 147, 153, 154]</span>:
+              <div class="formula-box">
+                <span class="vec">F</span> = Q · <span class="vec">E</span> &nbsp;|&nbsp; U = <span class="vec">E</span> · <span class="vec">l</span> &nbsp;|&nbsp; W = Q · <span class="vec">E</span> · <span class="vec">l</span> = Q · U <span class="cite">[cite: 147]</span>
+              </div>
+            </li>
+            <li><strong>Coulomb-Gesetz (Kraft zwischen zwei Punktladungen q<sub>1</sub>, q<sub>2</sub> im Abstand r):</strong>
+              <div class="formula-box">
+                |F| = <span class="frac"><span>1</span><span>4π · ε<sub>0</sub> · ε<sub>r</sub></span></span> · <span class="frac"><span>|q<sub>1</sub> · q<sub>2</sub>|</span><span>r<sup>2</sup></span></span> <span class="cite">[cite: 148]</span>
+              </div>
+              <small>ε<sub>0</sub> = elektrische Feldkonstante; ε<sub>r</sub> = relative Permittivität / Dielektrizitätszahl des Mediums (im Vakuum gilt ε<sub>r</sub> = 1) <span class="cite">[cite: 148]</span>.</small>
+            </li>
+            <li><strong>Analogie Potentialgebirge (Folie 14–16, 28–30):</strong> Das elektrische Potential Φ entspricht der Höhe h eines Berges. Die <strong>Spannung U = ΔΦ = Φ<sub>A</sub> − Φ<sub>B</sub></strong> entspricht der <em>Höhendifferenz h<sub>A</sub> − h<sub>B</sub></em> (eine Batterie wirkt wie eine Bergbahn, die Ladungen auf ein höheres Potential hebt; Widerstände sind der Abstiegspfad) <span class="cite">[cite: 149, 150, 151, 165, 166]</span>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>1.2 Plattenkondensator, Zellmembran & Aktionspotential</h2>
+      <div class="grid">
+        <div class="card exam-card">
+          <span class="badge exam">🔥 Klausur- & Physiologie-Fokus</span>
+          <h3>Der Plattenkondensator als Modell der Zellmembran</h3>
+          <div class="formula-box">
+            C = <span class="frac"><span>Q</span><span>U</span></span> = ε<sub>0</sub> · ε<sub>r</sub> · <span class="frac"><span>A</span><span>d</span></span> <span class="cite">[cite: 40, 155]</span>
+          </div>
+          <ul>
+            <li><strong>Aufbau & Feld:</strong> Zwei leitende Platten der Fläche A im Abstand d tragen gleiche, entgegengesetzte Ladungsmengen (+Q und −Q) und speichern Energie in einem <strong>homogenen elektrischen Feld <span class="vec">E</span></strong> zwischen den Platten <span class="cite">[cite: 155]</span>.</li>
+            <li><strong>2 zentrale Kondensatoren in der Medizin (Folie 21):</strong>
+              <ol>
+                <li><strong>Zellmembran:</strong> Die dünne, isolierende Lipiddoppelschicht (d ≈ wenige nm) trennt die leitfähige intrazelluläre und extrazelluläre Flüssigkeit → bildet einen Plattenkondensator mit einem <strong>Ruhemembranpotential von ca. −70 mV</strong> <span class="cite">[cite: 141, 150, 156]</span>.</li>
+                <li><strong>Elektrode-Haut-Gewebe-Übergang:</strong> Bei jeder EKG-, EMG- oder EEG-Ableitung wirkt die Grenzschicht zwischen Klebeelektrode und Haut als Kombination aus Widerstand R und Kondensator C <span class="cite">[cite: 89, 156]</span>.</li>
+              </ol>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card clinic-card">
+          <span class="badge clinic">🏥 Physiologie-Verknüpfung</span>
+          <h3>Größenordnungen & Ablauf des Aktionspotentials</h3>
+          <ul>
+            <li><strong>Biologische Größenskalen (Folie 7):</strong>
+              <br>• Zelle: ca. <strong>10 μm</strong> <span class="cite">[cite: 142]</span>
+              <br>• Zellmembran-Bereich: ca. <strong>100 nm</strong> <span class="cite">[cite: 142]</span>
+              <br>• Wasserstoffbrücke: ca. <strong>0,2 nm (2 Å)</strong> <span class="cite">[cite: 142]</span>
+              <br>• Einzelnes Atom (z. B. Sauerstoff): ca. <strong>0,1 nm (1 Å)</strong> <span class="cite">[cite: 142]</span>
+            </li>
+            <li><strong>Ionenkanäle & Phasen des Aktionspotentials (Folie 22–23):</strong>
+              <br>• <strong>Ruhepotential (ca. −70 mV):</strong> Na<sup>+</sup>-Kanal (besitzt <strong>2 Ventile</strong>/Tore) und K<sup>+</sup>-Kanal (besitzt <strong>1 Ventil</strong>) sind geschlossen <span class="cite">[cite: 157, 158]</span>.
+              <br>• <strong>Depolarisation (bis ca. +30 mV):</strong> Schnelle Öffnung der Na<sup>+</sup>-Kanäle → massiver Einstrom positiv geladener Na<sup>+</sup>-Ionen in die Zelle <span class="cite">[cite: 158]</span>.
+              <br>• <strong>Repolarisation:</strong> Spezifische <em>Schließung des zweiten Na<sup>+</sup>-Ventils</em> (Inaktivierungstor stoppt Na<sup>+</sup>-Einstrom), während der K<sup>+</sup>-Kanal während der gesamten initialen Repolarisation offen ist → der K<sup>+</sup>-Ausstrom (I<sub>K</sub>) treibt das Potential zurück zum Ruhewert <span class="cite">[cite: 158]</span>.
+              <br>• <strong>Hyperpolarisation:</strong> Unterschwingen unter −70 mV, bis sich die langsam reagierenden K<sup>+</sup>-Kanäle vollständig schließen <span class="cite">[cite: 158]</span>.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SEKTION 2: SCHALTKREISE & SIGNALTHEORIE ==================== -->
+    <section id="sec2" class="tab-section">
+      <h1>2. Elektrische Netzwerke, Bauelemente & Signaltheorie</h1>
+      <p class="section-lead">Praktikumsskript Kap. 6.1 & Elektrostatik-Vorlesung – Das Handwerkszeug für alle Schaltungsberechnungen und die Frequenzanalyse von Biosignalen <span class="cite">[cite: 79, 80, 81, 82, 83, 159]</span>.</p>
+
+      <h2>2.1 Die 2 aktiven Quellen & 3 passiven Bauelemente</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Bauelement</th>
+            <th>Strom-Spannungs-Beziehung</th>
+            <th>Verhalten im Schaltkreis & beim Überlagerungssatz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ideale Spannungsquelle (U<sub>Q</sub>)</strong> <span class="cite">[cite: 79, 80]</span></td>
+            <td>U = U<sub>Q</sub> = const<br>(Kennlinie: senkrechte Gerade bei U<sub>Q</sub>) <span class="cite">[cite: 79, 80]</span></td>
+            <td>Erzwingt unabhängig von der Last eine konstante Spannung; der Strom I ist lastabhängig. <strong>Parallele Elemente haben dieselbe Spannung</strong> <span class="cite">[cite: 79]</span>.<br>👉 <strong>Deaktivierung (Überlagerungssatz):</strong> Ersetzen durch <strong>Kurzschluss (0 V)</strong> <span class="cite">[cite: 79]</span>!</td>
+          </tr>
+          <tr>
+            <td><strong>Ideale Stromquelle (I<sub>Q</sub>)</strong> <span class="cite">[cite: 79, 80]</span></td>
+            <td>I = I<sub>Q</sub> = const<br>(Kennlinie: waagerechte Gerade bei I<sub>Q</sub>) <span class="cite">[cite: 79, 80]</span></td>
+            <td>Erzwingt einen konstanten Strom; die Spannung U hängt von der Beschaltung ab. <strong>In Reihe liegende Elemente werden vom selben Strom durchflossen</strong> <span class="cite">[cite: 79, 80]</span>.<br>👉 <strong>Deaktivierung (Überlagerungssatz):</strong> Ersetzen durch <strong>Leerlauf (0 A)</strong> <span class="cite">[cite: 80]</span>!</td>
+          </tr>
+          <tr>
+            <td><strong>Widerstand (R) & Leitwert (G)</strong> <span class="cite">[cite: 41, 81, 159]</span></td>
+            <td><strong>Ohmsches Gesetz:</strong><br>U = R · I = G<sup>−1</sup> · I <span class="cite">[cite: 41, 81, 159]</span></td>
+            <td>Einheit R: <strong>Ohm [Ω = V/A]</strong>; Kehrwert G = 1/R ist der elektrische Leitwert in <strong>Siemens [S = Ω<sup>−1</sup>]</strong> <span class="cite">[cite: 40, 41, 159]</span>. Im U-I-Diagramm entspricht R → ∞ einer flachen Kurve entlang der U-Achse <span class="cite">[cite: 81]</span>.</td>
+          </tr>
+          <tr>
+            <td><strong>Kapazität (C)</strong> <span class="cite">[cite: 81]</span></td>
+            <td>I<sub>C</sub> = C · <span class="frac"><span>dU<sub>C</sub></span><span>dt</span></span> &nbsp;⇔&nbsp; Q = ∫ I dt = C · U<sub>C</sub> <span class="cite">[cite: 40, 41, 81]</span></td>
+            <td>Summiert bei angelegter Stromquelle die Spannung U<sub>C</sub> über die Zeit auf <span class="cite">[cite: 81]</span>. Wirkt in Reihe geschaltet als <strong>Hochpass</strong> (blockiert Gleichstrom/niederfrequente Anteile, lässt hochfrequente Anteile durch) <span class="cite">[cite: 83]</span>.</td>
+          </tr>
+          <tr>
+            <td><strong>Induktivität / Spule (L)</strong> <span class="cite">[cite: 81]</span></td>
+            <td>U<sub>L</sub> = L · <span class="frac"><span>dI<sub>L</sub></span><span>dt</span></span> <span class="cite">[cite: 81]</span></td>
+            <td><strong>Dual zur Kapazität</strong> (entsteht durch Vertauschen von U ↔ I sowie C ↔ L) <span class="cite">[cite: 81]</span>. Bei konstanter Spannung U steigt der Strom I<sub>L</sub>(t) = (U/L)·t linear mit der Zeit an <span class="cite">[cite: 81, 86]</span>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>2.2 Kirchhoffsche Regeln, Teilerregeln & Überlagerungssatz</h2>
+      <div class="grid">
+        <div class="card exam-card">
+          <span class="badge exam">🔥 Klausur-Fokus: Netzwerkanalyse</span>
+          <h3>Kirchhoff, Reihen- & Parallelschaltung</h3>
+          <ul>
+            <li><strong>1. Kirchhoffsche Regel (Knotenregel / Kontinuität):</strong> Die Summe aller in einen Knoten hineinfließenden Ströme ist gleich der Summe aller wegfließenden Ströme (Ladungserhaltung: an einem Knoten geht nichts verloren) <span class="cite">[cite: 82, 161, 162]</span>:
+              <div class="formula-box">∑ I<sub>zu</sub> = ∑ I<sub>ab</sub> <span class="cite">[cite: 82, 161]</span></div>
+            </li>
+            <li><strong>2. Kirchhoffsche Regel (Maschenregel):</strong> Bei einem geschlossenen Umlauf in einer Masche ist die Summe aller Teilspannungen gleich Null <span class="cite">[cite: 82, 164]</span>:
+              <div class="formula-box">∑ U<sub>i</sub> = 0 <span class="cite">[cite: 82, 164]</span></div>
+            </li>
+            <li><strong>Reihenschaltung (Serienschaltung) & Spannungsteiler:</strong>
+              <div class="formula-box">
+                R<sub>ges</sub> = R<sub>1</sub> + R<sub>2</sub> + ... &nbsp;|&nbsp; U<sub>1</sub> = U · <span class="frac"><span>R<sub>1</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> &nbsp;|&nbsp; U<sub>2</sub> = U · <span class="frac"><span>R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> <span class="cite">[cite: 82, 167]</span>
+              </div>
+            </li>
+            <li><strong>Parallelschaltung & Stromteiler:</strong>
+              <div class="formula-box">
+                <span class="frac"><span>1</span><span>R<sub>ges</sub></span></span> = <span class="frac"><span>1</span><span>R<sub>1</sub></span></span> + <span class="frac"><span>1</span><span>R<sub>2</sub></span></span> &nbsp;⇒&nbsp; R<sub>ges</sub> = <span class="frac"><span>R<sub>1</sub> · R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> <span class="cite">[cite: 41, 169]</span>
+              </div>
+              <div class="formula-box">
+                I<sub>1</sub> = I · <span class="frac"><span>R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> &nbsp;|&nbsp; I<sub>2</sub> = I · <span class="frac"><span>R<sub>1</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> <span class="cite">[cite: 82]</span>
+              </div>
+              <em>Klausur-Merksatz:</em> Beim Stromteiler steht im Zähler für I<sub>1</sub> immer der <strong>andere</strong> Widerstand R<sub>2</sub> (der kleinere Widerstand bekommt den größeren Strom!) <span class="cite">[cite: 82]</span>.
+            </li>
+          </ul>
+        </div>
+
+        <div class="card exam-card">
+          <span class="badge exam">🔥 Klausur-Fokus: Signalverarbeitung</span>
+          <h3>Überlagerungssatz & Zeit- vs. Frequenzbereich</h3>
+          <ul>
+            <li><strong>Überlagerungssatz (Superposition, Abb. 6.1):</strong> Wirken mehrere Quellen gleichzeitig (z. B. Spannungsquelle U links + Stromquelle I parallel zu R<sub>2</sub>), werden die Einzelwirkungen getrennt berechnet und vorzeichenrichtig addiert <span class="cite">[cite: 83]</span>:
+              <div class="formula-box">
+                U<sub>2</sub> = U · <span class="frac"><span>R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> + I · <span class="frac"><span>R<sub>1</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> · R<sub>2</sub> <span class="cite">[cite: 83]</span>
+              </div>
+            </li>
+            <li><strong>Transienter Bereich (Zeitbereich) vs. Stationärer/Spektraler Bereich (Frequenzbereich):</strong>
+              <br>• Jedes beliebige Zeitsignal lässt sich als Überlagerung einzelner Cosinus-Frequenzanteile darstellen <span class="cite">[cite: 83, 84]</span>.
+              <br>• Ein einzelnes <strong>Cosinus-Signal</strong> mit Amplitude A und Periodendauer T besitzt genau eine Frequenz <strong>f<sub>0</sub> = 1 / T</strong> und erscheint im Frequenzspektrum als einzelner scharfer Peak bei f<sub>0</sub> mit der Amplitude <strong>A / 2</strong> <span class="cite">[cite: 83, 84]</span>.
+              <br>• Werden zwei Cosinus-Signale im Zeitbereich addiert, zeigt das Frequenzspektrum genau zwei Peaks bei deren Grundfrequenzen <span class="cite">[cite: 84]</span>.
+              <br>• Ein <strong>Rechtecksignal</strong> im Zeitbereich wird im Frequenzbereich durch eine <strong>Sinc-Kurve</strong> beschrieben <span class="cite">[cite: 84, 85]</span>.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SEKTION 3: SEMINAR & VORBEREITUNG (GELÖST) ==================== -->
+    <section id="sec3" class="tab-section">
+      <h1>3. Alle Rechenaufgaben: Seminar & Praktikumsvorbereitung</h1>
+      <p class="section-lead">Vollständige Musterlösungen zu allen 7 Aufgaben des Seminars „Biosignale" sowie zu den 3 Vorbereitungsaufgaben aus Kapitel 6.2.2 des Praktikumsskripts <span class="cite">[cite: 40, 41, 86, 87]</span>.</p>
+
+      <h2>3.1 Physikseminar: Biosignale (Aufgaben 1–7 komplett gelöst)</h2>
+
+      <details open>
+        <summary>🔥 Seminar-Aufgabe 1: Elektrischer Strom & Leitwerte (G = 2 mS, I = 0,2 A)</summary>
+        <p><strong>Aufgabenstellung:</strong> Durch einen Körper mit dem elektrischen Leitwert 2 mS fließt ein Strom von I = 0,2 A. Welche elektrische Spannung liegt zwischen Ein- und Austrittspunkt am Körper <span class="cite">[cite: 40]</span>?</p>
+        <div class="formula-box">
+          U = R · I = G<sup>−1</sup> · I = (2 · 10<sup>−3</sup> S)<sup>−1</sup> · 0,2 A = 500 Ω · 0,2 A = <strong>100 V</strong> <span class="cite">[cite: 41]</span>
+        </div>
+        <p><small>Einheit des Leitwerts G ist „Siemens" [1 S = 1 Ω<sup>−1</sup> = 1 A/V] <span class="cite">[cite: 41]</span>.</small></p>
+      </details>
+
+      <details open>
+        <summary>🔥 Seminar-Aufgabe 2: Spannungsteiler in Serienschaltung (U_q = 12 V, R_1 = 200 Ω, R_2 = 1 kΩ)</summary>
+        <p><strong>Aufgabenstellung:</strong> Spannungsquelle U<sub>q</sub> = 12 V sowie R<sub>1</sub> = 200 Ω und R<sub>2</sub> = 1 kΩ (= 1000 Ω) in Serienschaltung. Gesucht: R<sub>Ges</sub>, Teilspannungen U<sub>1</sub>, U<sub>2</sub> und Ströme I<sub>1</sub>, I<sub>2</sub> <span class="cite">[cite: 40]</span>.</p>
+        <ul>
+          <li><strong>Gesamtwiderstand:</strong> R<sub>Ges</sub> = R<sub>1</sub> + R<sub>2</sub> = 200 Ω + 1000 Ω = <strong>1200 Ω</strong> <span class="cite">[cite: 41]</span>.</li>
+          <li><strong>Teilspannungen (Spannungsteiler):</strong>
+            <div class="formula-box">
+              U<sub>1</sub> = <span class="frac"><span>200 Ω</span><span>1200 Ω</span></span> · 12 V = <strong>2 V</strong> &nbsp;&nbsp;|&nbsp;&nbsp; U<sub>2</sub> = <span class="frac"><span>1000 Ω</span><span>1200 Ω</span></span> · 12 V = <strong>10 V</strong> <span class="cite">[cite: 41]</span>
+            </div>
+          </li>
+          <li><strong>Ströme (in Reihenschaltung überall identisch):</strong>
+            <div class="formula-box">
+              I<sub>1</sub> = <span class="frac"><span>U<sub>1</sub></span><span>R<sub>1</sub></span></span> = <span class="frac"><span>2 V</span><span>200 Ω</span></span> = <strong>10 mA</strong> &nbsp;&nbsp;|&nbsp;&nbsp; I<sub>2</sub> = <span class="frac"><span>U<sub>2</sub></span><span>R<sub>2</sub></span></span> = <span class="frac"><span>10 V</span><span>1000 Ω</span></span> = <strong>10 mA</strong> <span class="cite">[cite: 41]</span>
+            </div>
+          </li>
+        </ul>
+      </details>
+
+      <details open>
+        <summary>🔥 Seminar-Aufgabe 3: Stromteiler in Parallelschaltung (U_q = 100 V, R_1 = 100 Ω, R_2 = 400 Ω)</summary>
+        <p><strong>Aufgabenstellung:</strong> Spannungsquelle U<sub>q</sub> = 100 V sowie R<sub>1</sub> = 100 Ω und R<sub>2</sub> = 400 Ω in Parallelschaltung. Gesucht: R<sub>Ges</sub>, Spannungen U<sub>1</sub>, U<sub>2</sub> und Teilströme I<sub>1</sub>, I<sub>2</sub> <span class="cite">[cite: 40]</span>.</p>
+        <ul>
+          <li><strong>Gesamtwiderstand:</strong>
+            <div class="formula-box">
+              R<sub>Ges</sub> = <span class="frac"><span>R<sub>1</sub> · R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> = <span class="frac"><span>100 Ω · 400 Ω</span><span>100 Ω + 400 Ω</span></span> = <span class="frac"><span>40 000</span><span>500</span></span> Ω = <strong>80 Ω</strong> <span class="cite">[cite: 41]</span>
+            </div>
+          </li>
+          <li><strong>Spannungen (parallel überall gleich):</strong> U<sub>1</sub> = U<sub>2</sub> = <strong>100 V</strong> <span class="cite">[cite: 41]</span>.</li>
+          <li><strong>Teilströme:</strong>
+            <div class="formula-box">
+              I<sub>1</sub> = <span class="frac"><span>U<sub>1</sub></span><span>R<sub>1</sub></span></span> = <span class="frac"><span>100 V</span><span>100 Ω</span></span> = <strong>1 A</strong> &nbsp;&nbsp;|&nbsp;&nbsp; I<sub>2</sub> = <span class="frac"><span>U<sub>2</sub></span><span>R<sub>2</sub></span></span> = <span class="frac"><span>100 V</span><span>400 Ω</span></span> = <strong>0,25 A</strong> <span class="cite">[cite: 41]</span>
+            </div>
+          </li>
+        </ul>
+      </details>
+
+      <details open>
+        <summary>🔥 Seminar-Aufgabe 4: Aufladung eines Kondensators (U_C = 1000 V, Q = 10 mC)</summary>
+        <p><strong>Aufgabenstellung:</strong> Beziehung zwischen Q und U<sub>C</sub> aus I<sub>C</sub> = C · dU<sub>C</sub>/dt ableiten und C für U<sub>C</sub> = 1000 V und Q = 10 mC berechnen <span class="cite">[cite: 40]</span>.</p>
+        <div class="formula-box">
+          Q = ∫ I<sub>C</sub> dt = ∫ C · <span class="frac"><span>dU<sub>C</sub></span><span>dt</span></span> dt = <strong>C · U<sub>C</sub></strong> <span class="cite">[cite: 40, 41]</span>
+        </div>
+        <div class="formula-box">
+          C = <span class="frac"><span>Q</span><span>U<sub>C</sub></span></span> = <span class="frac"><span>10 mAs</span><span>1000 V</span></span> = <span class="frac"><span>10 · 10<sup>−3</sup> C</span><span>1000 V</span></span> = 10<sup>−5</sup> F = <strong>10 μF</strong> <span class="cite">[cite: 41]</span>
+        </div>
+      </details>
+
+      <details open>
+        <summary>🔥 Seminar-Aufgabe 5: Elektrokardiographie (EKG-Stromkreis & Ströme der Wellen P bis U)</summary>
+        <p><strong>Aufgabenstellung:</strong> Zwei Ableitelektroden (je R<sub>Elektrode</sub> = 40 kΩ) und der Körperwiderstand dazwischen (R<sub>Körper</sub> = 10 kΩ) bilden mit der Herz-Spannungsquelle eine Reihenschaltung <span class="cite">[cite: 40, 41]</span>:</p>
+        <div class="formula-box">
+          R<sub>ges</sub> = 40 kΩ + 10 kΩ + 40 kΩ = <strong>90 kΩ</strong> &nbsp;&nbsp;|&nbsp;&nbsp; I<sub>max</sub> = <span class="frac"><span>U<sub>max</sub></span><span>R<sub>ges</sub></span></span> <span class="cite">[cite: 41]</span>
+        </div>
+        <p>Aus Abb. 10.1 abgelesene Maximalspannungen (1 kleines Kästchen vertikal = 0,1 mV) und resultierende Ströme <span class="cite">[cite: 40, 41]</span>:</p>
+        <ul>
+          <li><strong>P-Welle (0,2 mV):</strong> 0,2 mV / 90 kΩ ≈ <strong>2 nA</strong> (genau 2,22 nA) <span class="cite">[cite: 41]</span></li>
+          <li><strong>Q-Welle (0,1 mV):</strong> 0,1 mV / 90 kΩ ≈ <strong>1 nA</strong> (genau 1,11 nA) <span class="cite">[cite: 41]</span></li>
+          <li><strong>R-Welle (0,9 mV):</strong> 0,9 mV / 90 kΩ = <strong>10 nA</strong> <span class="cite">[cite: 41]</span></li>
+          <li><strong>S-Welle (0,3 mV):</strong> 0,3 mV / 90 kΩ ≈ <strong>3 nA</strong> (genau 3,33 nA) <span class="cite">[cite: 41]</span></li>
+          <li><strong>T-Welle (0,25 mV):</strong> 0,25 mV / 90 kΩ ≈ <strong>2,5 nA</strong> (genau 2,78 nA) <span class="cite">[cite: 41]</span></li>
+          <li><strong>U-Welle (0,05 mV):</strong> 0,05 mV / 90 kΩ ≈ <strong>0,5 nA</strong> (genau 0,56 nA) <span class="cite">[cite: 41]</span></li>
+        </ul>
+        <p><strong>Bewertung:</strong> Nein, Ströme im Nanoampere-Bereich (10<sup>−9</sup> A) sind extrem kleine Ströme <span class="cite">[cite: 40, 41]</span>.</p>
+      </details>
+
+      <details open>
+        <summary>🔥 Seminar-Aufgabe 6: Elektromyographie (EMG) – Warum Verstärker hochohmig sein müssen</summary>
+        <p><strong>Gegeben:</strong> Eingangssignal U ≈ 10 μV, Elektroden-Haut-Widerstand R = 10 MΩ, Verstärkungsfaktor A = 1000, Kapazitäten C und C<sub>V</sub> vernachlässigbar <span class="cite">[cite: 41]</span>. Da in den Verstärker selbst kein Strom hineinfließt, bilden R und R<sub>V</sub> einen klassischen <strong>Spannungsteiler</strong> <span class="cite">[cite: 41, 89]</span>:</p>
+        <div class="formula-box">
+          U<sub>out</sub> = A · <span class="frac"><span>R<sub>V</sub></span><span>R + R<sub>V</sub></span></span> · U <span class="cite">[cite: 41, 89]</span>
+        </div>
+        <ul>
+          <li><strong>1. Fall (R<sub>V</sub> = 10 MΩ):</strong> U<sub>out</sub> = 1000 · <span class="frac"><span>10 MΩ</span><span>10 MΩ + 10 MΩ</span></span> · 10 μV = 1000 · <span class="frac"><span>10</span><span>20</span></span> · 10 μV = <strong>5 mV</strong> (50 % Messverlust!) <span class="cite">[cite: 41]</span></li>
+          <li><strong>2. Fall (R<sub>V</sub> = 100 MΩ):</strong> U<sub>out</sub> = 1000 · <span class="frac"><span>100</span><span>110</span></span> · 10 μV ≈ <strong>9 mV</strong> (9,09 mV) <span class="cite">[cite: 41]</span></li>
+          <li><strong>3. Fall (R<sub>V</sub> = 1 GΩ = 1000 MΩ):</strong> U<sub>out</sub> = 1000 · <span class="frac"><span>1000</span><span>1010</span></span> · 10 μV ≈ <strong>10 mV</strong> (9,90 mV – erst wenn <strong>R<sub>V</sub> ≫ R</strong> ist, fällt fast die gesamte Biosignalspannung am Verstärkereingang ab!) <span class="cite">[cite: 41, 89]</span></li>
+        </ul>
+      </details>
+
+      <details open>
+        <summary>🔥 Seminar-Aufgabe 7: Gefahren des elektrischen Stromes (50 Hz, I = 80 mA, R = 5 kΩ)</summary>
+        <p><strong>Aufgabenstellung:</strong> Welche Spannung führt bei R = 5 kΩ zu I = 80 mA (Auslösung von Herzkammerflimmern)? Welche Schäden entstehen bei Gleichstrom vs. Wechselspannung <span class="cite">[cite: 41]</span>?</p>
+        <div class="formula-box">
+          U = R · I = 5 · 10<sup>3</sup> Ω · 80 · 10<sup>−3</sup> A = <strong>400 V</strong> <span class="cite">[cite: 41]</span>
+        </div>
+        <ul>
+          <li><strong>Schädigung bei hohen Gleichströmen (DC):</strong> Thermische Gewebeschädigung (<strong>Verbrennungen</strong>) sowie elektrolytische Zersetzung <span class="cite">[cite: 41]</span>.</li>
+          <li><strong>Schädigung bei hohen Wechselspannungen (AC, 50 Hz):</strong> Periodische Reizung des kardialen Erregungsleitungssystems → <strong>Herzrhythmusstörungen, Herzkammerflimmern</strong> <span class="cite">[cite: 41]</span>.</li>
+        </ul>
+      </details>
+
+      <h2>3.2 Praktikumsvorbereitung (Kapitel 6.2.2, S. 108–109 komplett gelöst)</h2>
+
+      <details open>
+        <summary>🔬 Vorbereitungsaufgabe 1: Konstante Spannung U an einer Induktivität L</summary>
+        <p><strong>Frage:</strong> An einer Induktivität L wird eine konstante Spannung U angelegt. Wie verhält sich der Strom durch die Induktivität als Funktion der Zeit <span class="cite">[cite: 86]</span>?</p>
+        <p><strong>Lösung:</strong> Für die Induktivität gilt die Grundbeziehung U = L · <span class="frac"><span>dI</span><span>dt</span></span> <span class="cite">[cite: 81]</span>. Stellt man nach dI = <span class="frac"><span>U</span><span>L</span></span> dt um und integriert über die Zeit t, erhält man bei konstanter Spannung U:</p>
+        <div class="formula-box">
+          I(t) = <span class="frac"><span>U</span><span>L</span></span> · t + I(0) <span class="cite">[cite: 81, 86]</span>
+        </div>
+        <p>Der Strom I(t) durch die Spule <strong>steigt linear mit der Zeit t an</strong> <span class="cite">[cite: 81, 86]</span>.</p>
+      </details>
+
+      <details open>
+        <summary>🔬 Vorbereitungsaufgabe 2: Schaltungsanalyse zu Abbildung 6.5 (R_Ges, U_R, U_R3, I_R3, I_R12)</summary>
+        <p><strong>Gegeben (Abb. 6.5):</strong> Eine Stromquelle I<sub>Q</sub> in der Mitte speist parallel den linken Zweig (Widerstand R<sub>3</sub>) und den rechten Zweig (Reihenschaltung aus R<sub>1</sub> und R<sub>2</sub>) <span class="cite">[cite: 86]</span>.</p>
+        <ul>
+          <li><strong>Anzahl der Knoten, Zweige und Maschen:</strong>
+            <br>• <strong>Knoten:</strong> <strong>2 Hauptknoten</strong> (oberer und unterer Verzweigungsknoten; zählt man den Verbindungspunkt zwischen R<sub>1</sub> und R<sub>2</sub> als 2-Element-Knoten mit, sind es <strong>3 Knoten</strong>) <span class="cite">[cite: 79, 86]</span>.
+            <br>• <strong>Zweige:</strong> <strong>3 Hauptzweige</strong> zwischen dem oberen und unteren Knoten (bzw. 4 Einzelzweige, wenn R<sub>1</sub> und R<sub>2</sub> getrennt gezählt werden) <span class="cite">[cite: 79, 86]</span>.
+            <br>• <strong>Maschen:</strong> <strong>3 Maschen insgesamt</strong> (linke Masche: I<sub>Q</sub> und R<sub>3</sub>; rechte Masche: I<sub>Q</sub>, R<sub>1</sub>, R<sub>2</sub>; äußere Umrandungsmasche: R<sub>3</sub>, R<sub>1</sub>, R<sub>2</sub>), davon sind <strong>2 Maschen linear unabhängig</strong> <span class="cite">[cite: 79, 86]</span>.
+          </li>
+          <li><strong>Gesamtwiderstand R<sub>Ges</sub>:</strong> R<sub>1</sub> und R<sub>2</sub> liegen in Reihe (R<sub>12</sub> = R<sub>1</sub> + R<sub>2</sub>) und gemeinsam parallel zu R<sub>3</sub> <span class="cite">[cite: 86]</span>:
+            <div class="formula-box">
+              R<sub>Ges</sub> = <span class="frac"><span>R<sub>3</sub> · (R<sub>1</sub> + R<sub>2</sub>)</span><span>R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub></span></span> <span class="cite">[cite: 41, 86]</span>
+            </div>
+          </li>
+          <li><strong>Spannung U<sub>R</sub> und Spannungsabfall U<sub>R3</sub>:</strong> Da R<sub>3</sub> direkt parallel zur Quelle I<sub>Q</sub> liegt, fällt über R<sub>3</sub> exakt die Gesamtspannung U<sub>R</sub> ab <span class="cite">[cite: 79, 86]</span>:
+            <div class="formula-box">
+              U<sub>R</sub> = U<sub>R3</sub> = I<sub>Q</sub> · R<sub>Ges</sub> = I<sub>Q</sub> · <span class="frac"><span>R<sub>3</sub> · (R<sub>1</sub> + R<sub>2</sub>)</span><span>R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub></span></span> <span class="cite">[cite: 81, 86]</span>
+            </div>
+          </li>
+          <li><strong>Teilströme I<sub>R3</sub> und I<sub>R12</sub> (nach der Stromteilerregel):</strong>
+            <div class="formula-box">
+              I<sub>R3</sub> = I<sub>Q</sub> · <span class="frac"><span>R<sub>1</sub> + R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub></span></span> &nbsp;&nbsp;|&nbsp;&nbsp; I<sub>R12</sub> = I<sub>Q</sub> · <span class="frac"><span>R<sub>3</sub></span><span>R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub></span></span> <span class="cite">[cite: 82, 86]</span>
+            </div>
+          </li>
+        </ul>
+      </details>
+
+      <details open>
+        <summary>🔬 Vorbereitungsaufgabe 3: Überlagerungssatz zu Abbildung 6.6 (Spannungsabfall U_1 an R_1)</summary>
+        <p><strong>Gegeben (Abb. 6.6):</strong> Links Spannungsquelle U, oben Widerstand R<sub>1</sub> (Spannungspfeil U<sub>1</sub> zeigt von links nach rechts), rechts parallel Stromquelle I (Pfeil nach oben) und Widerstand R<sub>2</sub> <span class="cite">[cite: 86, 87]</span>.</p>
+        <ol>
+          <li><strong>Teillösung 1 – Nur Spannungsquelle U aktiv (Stromquelle I wird durch Leerlauf ersetzt):</strong><br>
+            Der mittlere Zweig ist offen; R<sub>1</sub> und R<sub>2</sub> liegen in Reihe an U. Nach der Spannungsteilerregel gilt in Pfeilrichtung von U<sub>1</sub> <span class="cite">[cite: 80, 82, 87]</span>:
+            <div class="formula-box">
+              U<sub>1</sub><sup>(U)</sup> = + U · <span class="frac"><span>R<sub>1</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> <span class="cite">[cite: 82, 87]</span>
+            </div>
+          </li>
+          <li><strong>Teillösung 2 – Nur Stromquelle I aktiv (Spannungsquelle U wird durch Kurzschluss ersetzt):</strong><br>
+            Der linke Zweig ist ein Kurzschluss; damit liegen R<sub>1</sub> und R<sub>2</sub> parallel zur Stromquelle I <span class="cite">[cite: 79, 87]</span>. Nach der Stromteilerregel fließt durch R<sub>1</sub> der Teilstrom I<sub>R1</sub> = I · <span class="frac"><span>R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> – allerdings vom oberen Knoten <strong>nach links</strong> (also <em>entgegen</em> der eingezeichneten Pfeilrichtung von U<sub>1</sub>!) <span class="cite">[cite: 82, 87]</span>:
+            <div class="formula-box">
+              U<sub>1</sub><sup>(I)</sup> = − I<sub>R1</sub> · R<sub>1</sub> = − I · <span class="frac"><span>R<sub>1</sub> · R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> <span class="cite">[cite: 81, 82, 87]</span>
+            </div>
+          </li>
+          <li><strong>Überlagerung (Addition beider Teilwirkungen):</strong>
+            <div class="formula-box">
+              U<sub>1</sub> = U<sub>1</sub><sup>(U)</sup> + U<sub>1</sub><sup>(I)</sup> = <strong>U · <span class="frac"><span>R<sub>1</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span> − I · <span class="frac"><span>R<sub>1</sub> · R<sub>2</sub></span><span>R<sub>1</sub> + R<sub>2</sub></span></span></strong> <span class="cite">[cite: 83, 87]</span>
+            </div>
+          </li>
+        </ol>
+      </details>
+    </section>
+
+    <!-- ==================== SEKTION 4: PRAKTIKUM EMG, EOG, EKG ==================== -->
+    <section id="sec4" class="tab-section">
+      <h1>4. Praktikum Biosignale: EMG, EOG & EKG (Auswertung)</h1>
+      <p class="section-lead">Praktikumsskript Kap. 6.3 & 6.4 – Vollständige Antworten auf alle Verständnis- und Auswertungsfragen für dein Protokoll und das Testat <span class="cite">[cite: 88, 91, 92, 93, 95, 96, 97, 98]</span>.</p>
+
+      <h2>4.1 Elektromyographie (EMG – Kapitel 6.4.1)</h2>
+      <div class="card exam-card">
+        <span class="badge exam">🔥 Praktikum & Klausur: EMG (10–250/300 Hz)</span>
+        <h3>Entstehung & Musterlösungen zu den 4 Verständnisfragen (S. 113–114)</h3>
+        <ul>
+          <li><strong>1) Wie kommt es zu den unterschiedlichen EMG-Signalen in Ruhe und beim Ballen der Faust?</strong><br>
+            Jede motorische Einheit (MU) entspricht elektrisch einer Spannungsquelle <span class="cite">[cite: 91]</span>. In Ruhe feuern kaum motorische Einheiten (Nulllinie mit geringem Grundrauschen). Beim Ballen der Faust werden über das zentrale Nervensystem viele motorische Einheiten gleichzeitig aktiviert (<strong>Rekrutierung</strong>) und ihre Entladungsfrequenz (<strong>Feuerung</strong>) steigt. An der Hautoberfläche überlagern sich diese vielen Einzel-Aktionspotentiale zu einem hohen Summenpotential <span class="cite">[cite: 91, 92]</span>.</li>
+          <li><strong>2) Welche Informationen können Sie der Darstellung des Frequenzspektrums (LDS) entnehmen?</strong><br>
+            Das Leistungsdichtespektrum (LDS, in μV²·s über Hz) zeigt, wie sich die elektrische Leistung des Signals auf die einzelnen Frequenzen verteilt. Beim Oberflächen-EMG liegt der Großteil der Signalstärke im Bereich von <strong>10 Hz bis 250 Hz</strong> (bzw. bis 300 Hz, mit einem Maximum um 50–150 Hz) <span class="cite">[cite: 91, 92]</span>.</li>
+          <li><strong>3) Wie wirken sich Messungen mit verschiedenen Filtern auf das Frequenzspektrum aus?</strong><br>
+            • Ein <strong>Hochpassfilter</strong> (1 Hz, 20 Hz, 100 Hz, 200 Hz) unterdrückt alle Frequenzanteile <em>unterhalb</em> seiner Grenzfrequenz und lässt nur höhere Frequenzen passieren <span class="cite">[cite: 83, 92]</span>.<br>
+            • Der <strong>50-Hz-Sperrfilter („Notch-Filter")</strong> schneidet gezielt einen schmalen Frequenzbereich bei 50 Hz (Netzbrummen der Stromleitungen) aus dem Spektrum heraus <span class="cite">[cite: 92]</span>.</li>
+          <li><strong>4) Aussage über den Frequenzbereich & Interpretation des U<sub>pp</sub>-f-Diagramms:</strong><br>
+            Trägt man die Peak-to-Peak-Spannung U<sub>pp</sub> gegen die Hochpass-Grenzfrequenz f (1, 20, 100, 200 Hz) auf, fällt U<sub>pp</sub> zwischen 1 Hz und 20 Hz kaum ab (nur niederfrequente Bewegungsartefakte werden entfernt). Bei <strong>100 Hz und besonders 200 Hz sinkt U<sub>pp</sub> jedoch stark ab</strong>, weil damit der Hauptfrequenzbereich des EMGs (10–250 Hz) zunehmend weggeschnitten wird <span class="cite">[cite: 91, 92]</span>.</li>
+        </ul>
+      </div>
+
+      <h2>4.2 Elektrookulographie (EOG – Kapitel 6.4.2)</h2>
+      <div class="card exam-card">
+        <span class="badge exam">🔥 Praktikum & Klausur: EOG (Dipol-Modell)</span>
+        <h3>Dipol-Prinzip, Elektrodenanordnung & Lösungen zu den 3 Verständnisfragen (S. 115–117)</h3>
+        <ul>
+          <li><strong>Grundprinzip & Verschaltung (Abb. 6.12 & 6.13):</strong>
+            <br>• Der Augapfel ist ein elektrischer <strong>Dipol</strong>: Vorne an der <strong>Cornea (Hornhaut) ist er positiv (+)</strong> geladen, hinten an der <strong>Retina (Netzhaut) negativ (−)</strong> <span class="cite">[cite: 93]</span>.
+            <br>• Bei unbewegten Augen liefert das EOG ein reines Gleichspannungssignal (<strong>DC-Signal, ca. 100 μV</strong>) → deshalb muss vor Beginn bei Blick geradeaus der Offset kompensiert werden („OFFSET COMP.") <span class="cite">[cite: 93, 94]</span>.
+            <br>• <strong>Kanal 1 (vertikal):</strong> Rote Elektrode (+) unter dem Auge, blaue Elektrode (−) über dem Auge → Blick nach <em>oben</em> = positiver Ausschlag; Blick nach <em>unten</em> = negativer Ausschlag <span class="cite">[cite: 94]</span>.
+            <br>• <strong>Kanal 2 (horizontal):</strong> Rote Elektrode (+) rechts außen, blaue Elektrode (−) links außen → Blick nach <em>rechts</em> = positiver Ausschlag; Blick nach <em>links</em> = negativer Ausschlag <span class="cite">[cite: 94]</span>.
+            <br>• <strong>Lesen eines Textes:</strong> Langsame Folgebewegung nach rechts + schneller Rücksprung (Sakkade) nach links am Zeilenende erzeugt ein charakteristisches <strong>Sägezahnsignal</strong> <span class="cite">[cite: 93, 95]</span>.
+          </li>
+          <li><strong>1) Vergleich EMG am Unterarm vs. EMG am Kopf – welches ist stärker und warum?</strong><br>
+            Das <strong>EMG am Unterarm ist deutlich stärker</strong> (höhere Amplitude). Grund: Die Skelettmuskeln des Unterarms besitzen eine wesentlich größere Muskelmasse und größere motorische Einheiten als die sehr kleinen äußeren Augenmuskeln bzw. die feine mimische Stirnmuskulatur <span class="cite">[cite: 91, 94, 95]</span>.</li>
+          <li><strong>2) Wieso lässt sich im EOG-Signal die Blickrichtung eindeutig nach oben, unten, links und rechts zeigen?</strong><br>
+            Weil wir beim EOG nicht das hochfrequente Muskelzittern (EMG), sondern die räumliche Ausrichtung des <strong>statischen corneoretinalen Dipols</strong> messen: Dreht sich der Augapfel zu einer Elektrode hin, nähert sich die positiv geladene Cornea dieser Elektrode an (Potential steigt in diese Richtung proportional zum Blickwinkel); dreht sich das Auge weg, nähert sich die negative Retina an (Potential sinkt) <span class="cite">[cite: 93, 94, 95]</span>.</li>
+          <li><strong>3) Warum wird das EOG im Schlaflabor verwendet, um die REM-Phase zu detektieren?</strong><br>
+            Der corneoretinale Dipol besteht auch bei geschlossenen Augenlidern unverändert weiter. In der <strong>REM-Schlafphase</strong> (<em>Rapid Eye Movement</em>, Traumschlaf) treten charakteristische schnelle, sakkadische Augenbewegungen unter den geschlossenen Lidern auf, die sich mit den Klebeelektroden des EOGs berührungslos und eindeutig aufzeichnen lassen <span class="cite">[cite: 93, 95]</span>.</li>
+        </ul>
+      </div>
+
+      <h2>4.3 Elektrokardiographie (EKG – Kapitel 6.4.3)</h2>
+      <div class="card exam-card">
+        <span class="badge exam">🔥 Praktikum & Klausur: EKG (0,5–70 Hz) & HRV</span>
+        <h3>Signalentstehung & Lösungen zu den 5 Verständnisfragen (S. 118–120)</h3>
+        <ul>
+          <li><strong>1) Warum muss man das EKG-Signal nicht unbedingt an der Brust ableiten?</strong><br>
+            Das Herz verhält sich wie eine periodische Wechselspannungsquelle, die in ein <strong>gut leitendes Medium</strong> (Elektrolyte/Körperflüssigkeiten als Volumenleiter) eingebettet ist <span class="cite">[cite: 96]</span>. Das elektrische Feld des Herzens breitet sich daher im gesamten Körper bis in die Extremitäten aus, sodass die Potentialdifferenz problemlos auch zwischen rechtem und linkem Handgelenk (vereinfachte Einthoven-Ableitung) oder nach Goldberger (aVR, aVL, aVF) gemessen werden kann <span class="cite">[cite: 96, 97, 170]</span>.</li>
+          <li><strong>2) Frequenzbereich von EKG-Signalen & Vergleich des U<sub>pp</sub>-f-Diagramms mit dem EMG:</strong><br>
+            Das EKG-Signal besteht aus relativ langsamen Frequenzanteilen zwischen <strong>0,5 Hz und 70 Hz</strong> (mit den größten Amplituden unterhalb von 30 Hz) <span class="cite">[cite: 96]</span>. Trägt man U<sub>pp</sub> über den Hochpassfiltern (1 Hz, 10 Hz, 20 Hz, 30 Hz) auf, fällt U<sub>pp</sub> beim EKG schon ab <strong>10 Hz bis 30 Hz drastisch ab</strong> (P- und T-Welle verschwinden zuerst, zuletzt auch der QRS-Komplex), während das höherfrequente EMG (10–250 Hz) bei 20–30 Hz noch nahezu ungeschwächt bleibt <span class="cite">[cite: 91, 96, 97, 98]</span>.</li>
+          <li><strong>3) Warum ist die Messung des EKG-Signals störanfälliger auf die 50-Hz-Brummspannung als das EMG?</strong><br>
+            Erstens liegen beim EKG die Elektroden weit auseinander (rechtes und linkes Handgelenk): Die langen Elektrodenkabel und der Oberkörper spannen eine große Fläche (Induktions-/Antennenschleife) auf, in die das elektromagnetische 50-Hz-Stromnetz stark einkoppelt <span class="cite">[cite: 92, 97, 98]</span>. Zweitens liegt 50 Hz mitten im EKG-Übertragungsbereich (0,5–70 Hz) bei gleichzeitig kleiner Nutzsignalamplitude an den Handgelenken <span class="cite">[cite: 96, 98]</span>.</li>
+          <li><strong>4) Erholungskurve (nach 20 Kniebeugen / 4. Stock) vs. Ruhepulskurve:</strong><br>
+            Die Ruhepulskurve (Aufgabe d) schwankt leicht um ein konstantes, niedriges Niveau (z. B. 60–75 BPM). Nach körperlicher Belastung (Aufgabe e) startet die Herzfrequenz deutlich erhöht und fällt über die 4 Minuten exponentiell in Richtung des Ruhepulses ab – je schneller dieser Abfall erfolgt, desto besser ist die kardiovaskuläre Erholungsfähigkeit (Fitness) <span class="cite">[cite: 97, 98]</span>.</li>
+          <li><strong>5) Herzfrequenzvariabilität (HRV / SDNN) aus dem Histogramm berechnen & erklären:</strong><br>
+            Über das Histogramm der Ruhepulswerte wird eine Gaußsche Glockenkurve gelegt und auf halber Maximalhöhe (<strong>N<sub>max</sub> / 2</strong>) der linke und rechte x-Achsen-Wert (in BPM) abgelesen <span class="cite">[cite: 98]</span>:
+            <div class="formula-box">
+              HRV = <span class="frac"><span>1</span><span>2</span></span> · (<span class="frac"><span>60</span><span>x-Wert<sub>links</sub> [BPM]</span></span> − <span class="frac"><span>60</span><span>x-Wert<sub>rechts</sub> [BPM]</span></span>) · 1000 [ms] <span class="cite">[cite: 98]</span>
+            </div>
+            <strong>Aussagekraft der HRV:</strong> Der Bruch 60 / BPM rechnet die Herzfrequenz in den zeitlichen Abstand zweier R-Zacken (RR-Intervall in Sekunden) um <span class="cite">[cite: 98]</span>. Ein gesundes Herz schlägt <em>nicht</em> starr wie ein Metronom: Die HRV misst die physiologische zeitliche Schwankungsbreite von Schlag zu Schlag und ist ein Maß für die <strong>neurovegetative Anpassungsfähigkeit</strong> (Zusammenspiel von Sympathikus und Parasympathikus/Vagus). Eine hohe HRV in Ruhe spricht für gute Erholung und Anpassungsfähigkeit, eine stark erniedrigte HRV für Stress, Überlastung oder autonome Neuropathie <span class="cite">[cite: 98]</span>.</li>
+        </ul>
+      </div>
+
+      <h2>4.4 Interaktive Labor- & Klausurrechner (Verstärker & HRV)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>1. Biosignal-Verstärkerrechner (Aufgabe 6)</h3>
+          <p>Prüft den Spannungsteiler U<sub>out</sub> = A · (R<sub>V</sub> / (R + R<sub>V</sub>)) · U <span class="cite">[cite: 41, 89]</span>:</p>
+          <div class="calc-row">
+            <label>U [μV]: <input type="number" id="ampU" class="calc-input" value="10" oninput="calcAmp()"></label>
+            <label>R<sub>Haut</sub> [MΩ]: <input type="number" id="ampR" class="calc-input" value="10" oninput="calcAmp()"></label>
+            <label>R<sub>V</sub> [MΩ]: <input type="number" id="ampRv" class="calc-input" value="100" oninput="calcAmp()"></label>
+            <label>Faktor A: <input type="number" id="ampA" class="calc-input" value="1000" oninput="calcAmp()"></label>
+          </div>
+          <div class="formula-box" id="ampOut">U_out = 9,09 mV (90,9 % des Signals erfasst)</div>
+        </div>
+
+        <div class="card">
+          <h3>2. HRV-Rechner für dein EKG-Protokoll (Abb. 6.17)</h3>
+          <p>Gib die beiden BPM-Werte bei N<sub>max</sub>/2 aus deinem Histogramm ein <span class="cite">[cite: 98]</span>:</p>
+          <div class="calc-row">
+            <label>BPM<sub>links</sub>: <input type="number" step="0.5" id="hrvL" class="calc-input" value="59" oninput="calcHRV()"></label>
+            <label>BPM<sub>rechts</sub>: <input type="number" step="0.5" id="hrvR" class="calc-input" value="73" oninput="calcHRV()"></label>
+          </div>
+          <div class="formula-box" id="hrvOut">HRV (SDNN) = 97,52 ms</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    function openTab(tabId, btn) {
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if (btn) btn.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleExamMode() {
+      const body = document.body;
+      const btn = document.getElementById('examFilterBtn');
+      body.classList.toggle('exam-only');
+      const isActive = body.classList.contains('exam-only');
+      btn.classList.toggle('active-filter', isActive);
+      btn.textContent = isActive ? '🎯 Nur Prüfungsrelevantes: AN' : '🎯 Nur Prüfungsrelevantes: AUS';
+    }
+
+    function toggleAllDetails(openState) {
+      document.querySelectorAll('details').forEach(d => d.open = openState);
+    }
+
+    function filterContent() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const sections = document.querySelectorAll('.tab-section');
+      if (!q) {
+        sections.forEach(s => s.style.display = '');
+        const activeBtn = document.querySelector('.nav-btn.active');
+        const idx = Array.from(document.querySelectorAll('.nav-btn')).indexOf(activeBtn);
+        sections.forEach((s, i) => s.classList.toggle('active', i === idx));
+        return;
+      }
+      sections.forEach(s => {
+        const match = s.innerText.toLowerCase().includes(q);
+        s.style.display = match ? 'block' : 'none';
+      });
+    }
+
+    function calcAmp() {
+      const U = parseFloat(document.getElementById('ampU').value);
+      const R = parseFloat(document.getElementById('ampR').value);
+      const Rv = parseFloat(document.getElementById('ampRv').value);
+      const A = parseFloat(document.getElementById('ampA').value);
+      const out = document.getElementById('ampOut');
+      if (R >= 0 && Rv > 0 && U >= 0 && A >= 0) {
+        const ratio = Rv / (R + Rv);
+        const uOut_mV = (A * ratio * U) / 1000;
+        out.textContent = 'U_out = ' + uOut_mV.toFixed(2) + ' mV (' + (ratio * 100).toFixed(1) + ' % des Signals erfasst)';
+      } else {
+        out.textContent = 'Bitte gültige positive Werte eingeben.';
+      }
+    }
+
+    function calcHRV() {
+      const bpmL = parseFloat(document.getElementById('hrvL').value);
+      const bpmR = parseFloat(document.getElementById('hrvR').value);
+      const out = document.getElementById('hrvOut');
+      if (bpmL > 0 && bpmR > bpmL) {
+        const hrv = 0.5 * ((60 / bpmL) - (60 / bpmR)) * 1000;
+        out.textContent = 'HRV (SDNN) = ' + hrv.toFixed(2) + ' ms';
+      } else {
+        out.textContent = 'Bitte BPM_rechts > BPM_links > 0 eingeben.';
+      }
+    }
+  </script>
+</body>
+</html>
